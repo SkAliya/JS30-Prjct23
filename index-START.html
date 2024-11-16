@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Speech Synthesis</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Pacifico"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="https://fav.farm/🔥" />
+  </head>
+  <body>
+    <div class="voiceinator">
+      <h1>The Voiceinator 5000</h1>
+
+      <select name="voice" id="voices">
+        <option value="">Select A Voice</option>
+      </select>
+
+      <label for="rate">Rate:</label>
+      <input name="rate" type="range" min="0" max="3" value="1" step="0.1" />
+
+      <label for="pitch">Pitch:</label>
+
+      <input name="pitch" type="range" min="0" max="2" step="0.1" />
+      <textarea name="text">Hello! I love JavaScript 👍</textarea>
+      <button id="stop">Stop!</button>
+      <button id="speak">Speak</button>
+    </div>
+
+    <script>
+      //GRABING ALL ELES
+      const voicesDropdown = document.querySelector('[name="voice"]');
+      const options = document.querySelectorAll(
+        '[type="range"], [name="text"]'
+      );
+      const speakButton = document.querySelector("#speak");
+      const stopButton = document.querySelector("#stop");
+      const voiceTxt = document.querySelector("textarea").textContent;
+
+      //CREATING NEW SPEACH OBJ
+      const msg = new SpeechSynthesisUtterance();
+      msg.text = voiceTxt;
+
+      //ARRAY FOR DEVICES VOICES TO STORE
+      let voices = [];
+
+      function populateVoice() {
+        //GETTING ALL DEVICE VOICES ND ASSIGN TO ARRAY
+        voices = this.getVoices();
+
+        //POPULATING NEW OPTIONS IN SLECET
+        voicesDropdown.innerHTML = voices
+          .filter((voice) => voice.name.includes("English"))
+          .map((op) => {
+            return `<option value='${op.name}'>Lan-name:${
+              op.name.split("-")[0]
+            } & Lan-type:(${op.lang})</option>`;
+          })
+          .join("");
+      }
+
+      //CHANGING MSG OBJ RATE & PITCH VALUES
+      function changeValues() {
+        msg[this.name] = this.value;
+        console.log(msg.rate, msg.pitch);
+        speakStartStop();
+      }
+
+      //CHANGING MSG OBJ VOICE BY SELECTED OPTION VALUE
+      function setVoice() {
+        msg.voice = voices.find((voice) => voice.name === this.value);
+        speakStartStop();
+      }
+
+      //START SPEAKING MSG FROM BIGINING WHEN BTNS CLICKED
+      function speakStartStop(toggle = true) {
+        speechSynthesis.cancel();
+
+        if (toggle) {
+          speechSynthesis.speak(msg);
+        }
+      }
+
+      speechSynthesis.addEventListener("voiceschanged", populateVoice);
+      options.forEach((op) => op.addEventListener("change", changeValues));
+      voicesDropdown.addEventListener("change", setVoice);
+      speakButton.addEventListener("click", speakStartStop);
+      stopButton.addEventListener("click", () => speakStartStop(false));
+    </script>
+  </body>
+</html>
